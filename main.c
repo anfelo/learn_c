@@ -1,29 +1,30 @@
 #include <stdio.h>
 
-#define LOWER 0 /* lower limit of temperature */
-#define UPPER 300 /* upper limit */
-#define STEP 20 /* step size */
-
 /*
- * Print Farenheit-Celcius table
- * for fahr = 0,20,...,300
+ * Copy input to output
 */
 int main()
 {
-    float fahr, celsius;
+    int c;
+    long nc;
 
-    fahr = LOWER;
-    while (fahr <= UPPER) {
-        celsius = (5.0/9.0) * (fahr-32.0);
-        printf("%3.0f%6.1f\n", fahr, celsius);
-        fahr = fahr + STEP;
+    c = getchar();
+    nc = 0;
+    while (c != EOF) {
+        ++nc;
+        putchar(c);
+        c = getchar();
+        printf("%ld\n", nc);
     }
 
-    // With for loop
-    // int fahr;
-    //
-    // for (fahr = 0; fahr <= 300; fahr = fahr + 20) {
-    //     printf("%3d%6.1f\n", fahr, (5.0/9.0)*(fahr-32));
+    // while ((c = getchar()) != EOF) {
+    //     putchar(c);
     // }
+    
+    // double nc;
+    //
+    // for (nc = 0; getchar() != EOF; ++nc)
+    //     ;
+    // printf("%.0f\n", nc);
 }
 
