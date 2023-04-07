@@ -1,30 +1,30 @@
 #include <stdio.h>
 
+#define IN 1
+#define OUT 0
+
 /*
  * Copy input to output
 */
 int main()
 {
-    int c;
-    long nc;
+    int c, nl, nw, nc, state;
 
-    c = getchar();
-    nc = 0;
-    while (c != EOF) {
+    state = OUT;
+    nl = nw = nc = 0;
+    while ((c = getchar()) != EOF) {
         ++nc;
-        putchar(c);
-        c = getchar();
-        printf("%ld\n", nc);
-    }
+        if (c == '\n') {
+            ++nl;
+        }
 
-    // while ((c = getchar()) != EOF) {
-    //     putchar(c);
-    // }
-    
-    // double nc;
-    //
-    // for (nc = 0; getchar() != EOF; ++nc)
-    //     ;
-    // printf("%.0f\n", nc);
+        if (c == ' ' || c == '\n' || c == '\t') {
+            state = OUT;
+        } else if (state == OUT) {
+            state = IN;
+            ++nw;
+        }
+    }
+    printf("%d%d%d\n", nl, nw, nc);
 }
 
