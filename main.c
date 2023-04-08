@@ -1,51 +1,55 @@
 #include <stdio.h>
-#include <time.h>
 
-int year_progress();
-void print_progress(int progress);
+#define MAXLINE 1000
+
+int getlen(char line[], int maxline);
+void copy(char to[], char from[]);
 
 /*
- * Test power function
+ * Print longest input line
  */
 int main()
 {
-    int progress;
+    int len;
+    int max;
 
-    progress = year_progress();
-    print_progress(progress);
+    char line[MAXLINE];
+    char longest[MAXLINE];
 
+    max = 0;
+    while ((len = getlen(line, MAXLINE)) > 0) {
+        if (len > max) {
+            max = len;
+            copy(longest, line);
+        }
+    }
+
+    if (max > 0)
+        printf("%s", longest);
     return 0;
 }
 
-int year_progress()
+int getlen(char s[], int lim)
 {
-    int ndays, nday;
+    int c, i;
 
-    time_t t = time(NULL);
-    struct tm *tm = localtime(&t);
+    for (i = 0; i < lim-1 && (c=getchar()) != EOF && c != '\n'; ++i)
+        s[i] = c;
 
-    nday = ndays = tm->tm_yday + 1;
+    if (c == '\n') {
+        s[i] = c;
+        ++i;
+    }
 
-    if (tm->tm_year % 4 == 0 && (tm->tm_year % 100 != 0 || tm->tm_year % 400 == 0))
-        ndays = 366;
-    else
-        ndays = 365;
-
-    return (nday * 100) / ndays;
+    s[i] = '\0';
+    return i;
 }
 
-void print_progress(int progress)
+void copy(char to[], char from [])
 {
-    int i, progress_bars;
+    int i;
 
-    progress_bars = progress / 10;
-
-    printf("Progress: |");
-    for (i = 0; i < 10; ++i) {
-        if (i <= progress_bars)
-            printf("█");
-        else
-            printf("-");
-    }
-    printf("| %d%% Complete\n", progress);
+    i = 0;
+    while ((to[i] = from[i]) != '\0')
+        ++i;
 }
