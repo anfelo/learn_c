@@ -1,26 +1,51 @@
 #include <stdio.h>
+#include <time.h>
 
-int power(int m, int n);
+int year_progress();
+void print_progress(int progress);
 
 /*
  * Test power function
  */
 int main()
 {
-    int i;
+    int progress;
 
-    for (i = 0; i < 10; ++i)
-        printf("%d %d %d\n", i, power(2,i), power(-3, i));
+    progress = year_progress();
+    print_progress(progress);
+
     return 0;
 }
 
-int power(int base, int n)
+int year_progress()
 {
-    int i,p;
+    int ndays, nday;
 
-    p = 1;
-    for (i = 1; i <= n; ++i)
-        p = p * base;
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
 
-    return p;
+    nday = ndays = tm->tm_yday + 1;
+
+    if (tm->tm_year % 4 == 0 && (tm->tm_year % 100 != 0 || tm->tm_year % 400 == 0))
+        ndays = 366;
+    else
+        ndays = 365;
+
+    return (nday * 100) / ndays;
+}
+
+void print_progress(int progress)
+{
+    int i, progress_bars;
+
+    progress_bars = progress / 10;
+
+    printf("Progress: |");
+    for (i = 0; i < 10; ++i) {
+        if (i <= progress_bars)
+            printf("█");
+        else
+            printf("-");
+    }
+    printf("| %d%% Complete\n", progress);
 }
