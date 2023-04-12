@@ -1,61 +1,21 @@
 #include <stdio.h>
 
-#define MAXLINE 1000
-
-int max;
-char line[MAXLINE];
-char longest[MAXLINE];
-
-int getlen(void);
-void copy(void);
-
 /*
- * Print longest input line
+ * echo command-line arguments
+ *
  */
-int main()
+int main(int argc, char *argv[])
 {
-    int len;
+    // 1st version
+    // int i;
+    //
+    // for (i = 1; i < argc; i++)
+    //     printf("%s%s", argv[i], (i < argc - 1)?" ":"");
 
-    extern int max;
-    extern char longest[];
+    // 2nd version
+    while (--argc > 0)
+        printf("%s%s", *++argv, (argc > 1)?" ":"");
 
-    max = 0;
-    while ((len = getlen()) > 0) {
-        if (len > max) {
-            max = len;
-            copy();
-        }
-    }
-
-    if (max > 0)
-        printf("%s", longest);
+    printf("\n");
     return 0;
-}
-
-int getlen(void)
-{
-    int c, i;
-    extern char line[];
-
-    for (i = 0; i < MAXLINE-1 && (c=getchar()) != EOF && c != '\n'; ++i)
-        line[i] = c;
-
-    if (c == '\n') {
-        line[i] = c;
-        ++i;
-    }
-
-    line[i] = '\0';
-    return i;
-}
-
-void copy(void)
-{
-    int i;
-
-    extern char line[], longest[];
-
-    i = 0;
-    while ((longest[i] = line[i]) != '\0')
-        ++i;
 }
