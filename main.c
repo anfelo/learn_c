@@ -1,21 +1,28 @@
 #include <stdio.h>
 
+struct point {
+    int x;
+    int y;
+};
+
 /*
- * echo command-line arguments
- *
+ * make a point from x and y coordinates
  */
-int main(int argc, char *argv[])
+int main()
 {
-    // 1st version
-    // int i;
-    //
-    // for (i = 1; i < argc; i++)
-    //     printf("%s%s", argv[i], (i < argc - 1)?" ":"");
+    struct point temp;
+    struct point *pp;
 
-    // 2nd version
-    while (--argc > 0)
-        printf("%s%s", *++argv, (argc > 1)?" ":"");
+    temp.x = 1;
+    temp.y = 2;
 
-    printf("\n");
-    return 0;
+    pp = &temp;
+
+    printf("%d, %d\n", temp.x, temp.y);
+    printf("%d, %d\n", temp.x, temp.y);
+
+    // Pointer to the struct and how to
+    // access the members
+    printf("%d, %d\n", (*pp).x, (*pp).y);
+    printf("%d, %d\n", pp->x, pp->y);
 }
