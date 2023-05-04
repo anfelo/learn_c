@@ -2,6 +2,10 @@
 
 /*
  * echo command-line arguments
+ * argc: arguments count, if 1 then there are no arguments
+ * argv: list of arguments, the first one is
+ * the name by which the program was invoked.
+ * argv[argc] == NULL
  *
  */
 int main(int argc, char *argv[])
