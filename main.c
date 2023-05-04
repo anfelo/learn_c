@@ -1,28 +1,37 @@
 #include <stdio.h>
 
-struct point {
-    int x;
-    int y;
-};
+/* strcmp: return <0 if s<t, 0 if s==t, >0 if s>t */
+int strcmp1(char *s, char *t) {
+    for (; *s == *t; s++, t++)
+        if (*s == '\0')
+            return 0;
+    return *s - *t;
+}
+
+/* strcpy: copy t to s */
+void strcpy1(char *s, char *t) {
+    while ((*s++ = *t++) != '\0')
+        ;
+}
 
 /*
- * make a point from x and y coordinates
+ * tests some str functions implemented with pointers
  */
-int main()
-{
-    struct point temp;
-    struct point *pp;
+int main() {
+    int result;
+    char *txt1, *txt2, *other1, *other2;
 
-    temp.x = 1;
-    temp.y = 2;
+    txt1 = "first string";
+    txt2 = "second string";
 
-    pp = &temp;
+    result = strcmp1(txt1, txt2);
 
-    printf("%d, %d\n", temp.x, temp.y);
-    printf("%d, %d\n", temp.x, temp.y);
+    printf("%d\n", result);
 
-    // Pointer to the struct and how to
-    // access the members
-    printf("%d, %d\n", (*pp).x, (*pp).y);
-    printf("%d, %d\n", pp->x, pp->y);
+    other1 = "foo";
+    other2 = "bar";
+
+    strcpy1(other2, other1);
+
+    printf("%c", *other2);
 }
