@@ -1,240 +1,109 @@
-#include <stddef.h>
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-void swap_nums(int *a, int *b);
-void print_int_array(int *arr, size_t size);
+typedef struct Node {
+    int value;
+    struct Node *next;
+} Node;
 
-void bubblesort(int *arr, size_t size);
-void insertionsort(int *arr, size_t size);
-void selectionsort(int *arr, size_t size);
+typedef struct LinkedList {
+    int length;
+    Node *head;
+    Node *tail;
 
-void quicksort(int *arr, int low, int high);
-int partition(int *arr, int low, int high);
+} LinkedList;
 
-void mergesort(int *arr, int left, int right);
-void merge(int *arr, int left, int mid, int right);
+Node* createNode(int item) {
+    Node *newNode = (Node*)malloc(sizeof(struct Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    newNode->value = item;
+    newNode->next = NULL;
+    return newNode;
+}
 
-int main(int argc, char *argv[])
-{
-    if (argc < 2)
-    {
-        printf("No algo specified. Try bubblesort.");
-        return 1;
+LinkedList* createList() {
+    LinkedList *list = (LinkedList*)malloc(sizeof(struct LinkedList));
+    if (list == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    list->length = 0;
+    list->head = NULL;
+    list->tail = NULL;
+
+    return list;
+}
+
+void append(LinkedList *list, int item) {
+    Node *node = createNode(item);
+
+    list->length++;
+
+    if (list->head == NULL) {
+        list->head = node;
+        list->tail = node;
+        return;
     }
 
-    int my_arr[] = { 35, 29, 8, 90, 15, 33 };
-    size_t arr_len = sizeof(my_arr) / sizeof(my_arr[0]);
+    list->tail->next = node;
+    list->tail = node;
+}
 
-    // Initial array
-    print_int_array(my_arr, arr_len);
+void prepend(LinkedList *list, int item) {
+    Node *node = createNode(item);
 
-    if (strcmp(argv[1], "bubblesort") == 0)
-    {
-        bubblesort(my_arr, arr_len);
-    }
-    else if (strcmp(argv[1], "selectionsort") == 0)
-    {
-        selectionsort(my_arr, arr_len);
-    }
-    else if (strcmp(argv[1], "insertionsort") == 0)
-    {
-        insertionsort(my_arr, arr_len);
-    }
-    else if (strcmp(argv[1], "quicksort") == 0)
-    {
-        quicksort(my_arr, 0, (int)arr_len);
-    }
-    else if (strcmp(argv[1], "mergesort") == 0)
-    {
-        mergesort(my_arr, 0, (int)arr_len);
-    }
-    else
-    {
-        printf("No matching sorting algo\n");
-        return -1;
+    list->length++;
+
+    if (list->head == NULL) {
+        list->head = node;
+        list->tail = node;
+        return;
     }
 
-    // sorted array
-    print_int_array(my_arr, arr_len);
+    node->next = list->head;
+    list->head = node;
+}
+
+void freeList(LinkedList *list) {
+    Node *current = list->head;
+    Node *nextNode;
+
+    while (current != NULL) {
+        nextNode = current->next;
+        free(current);
+        current = nextNode;
+    }
+
+    free(list);
+}
+
+void printList(LinkedList *list) {
+    Node *current = list->head;
+    Node *nextNode;
+
+    while (current != NULL) {
+      nextNode = current->next;
+      printf("%d -> ", current->value);
+      current = nextNode;
+    }
+
+    printf("NULL\n");
+}
+
+int main(int argc, char *argv[]) {
+    LinkedList *list = createList();
+
+    append(list, 777);
+    append(list, 420);
+    append(list, 69);
+    prepend(list, 99);
+
+    printList(list);
+
+    freeList(list);
 
     return 0;
-}
-
-void bubblesort(int *arr, size_t size)
-{
-    int i, j;
-    short swapped = 1;
-
-    while (swapped)
-    {
-        swapped = 0;
-        for (j = 0; j < size - 1; j++)
-        {
-            if (arr[j + 1] < arr[j])
-            {
-                swap_nums(&arr[j], &arr[j + 1]);
-                swapped = 1;
-            }
-        }
-    }
-}
-
-void selectionsort(int *arr, size_t size)
-{
-    int i;
-
-    for (i = 0; i < size; i++)
-    {
-        int max = 0;
-        int j;
-
-        for (j = 0; j < size - i; j++)
-        {
-            if (arr[j] > arr[max])
-            {
-                max = j;
-            }
-        }
-
-        int last = size - 1 - i;
-        if (max != last)
-        {
-            swap_nums(&arr[max], &arr[last]);
-        }
-    }
-}
-
-void insertionsort(int *arr, size_t size)
-{
-    int i;
-
-    for (i = 1; i < size; i++)
-    {
-        int curr = arr[i];
-        int j = i;
-
-        while (j >= 1 && arr[j - 1] > curr)
-        {
-            arr[j] = arr[j - 1];
-            j--;
-        }
-
-        arr[j] = curr;
-    }
-}
-
-void quicksort(int *arr, int low, int high)
-{
-    if (low < high)
-    {
-        int pivot = partition(arr, low, high);
-        quicksort(arr, low, pivot);
-        quicksort(arr, pivot + 1, high);
-    }
-}
-
-int partition(int *arr, int low, int high)
-{
-    int pivot = arr[low];
-    int left = low;
-    int right = high;
-
-    while (left < right)
-    {
-        while (arr[left] <= pivot && left < high)
-        {
-            left++;
-        }
-
-        while (arr[right] > pivot && right > low)
-        {
-            right--;
-        }
-
-        if (left < right)
-        {
-            swap_nums(&arr[left], &arr[right]);
-        }
-    }
-
-    arr[low] = arr[right];
-    arr[right] = pivot;
-    return right;
-}
-
-void mergesort(int *arr, int left, int right)
-{
-    if (left < right) {
-        int mid = left + (right - left) / 2;
-        mergesort(arr, left, mid);
-        mergesort(arr, mid + 1, right);
-        merge(arr, left, mid, right);
-    }
-}
-
-void merge(int *arr, int left, int mid, int right)
-{
-    int l_size = mid - left + 1;
-    int r_size = right - mid;
-
-    int l_arr[l_size];
-    int r_arr[r_size];
-
-    for (int i = 0; i < l_size; i++) {
-        l_arr[i] = arr[left + i];
-    }
-
-    for (int i = 0; i < r_size; i++) {
-        r_arr[i] = arr[mid + i + 1];
-    }
-
-    int i = 0;
-    int j = 0;
-    int k = left;
-
-    while (i < l_size && j < r_size)
-    {
-        if (l_arr[i] <= r_arr[j])
-        {
-            arr[k] = l_arr[i];
-            i++;
-        }
-        else
-        {
-            arr[k] = r_arr[j];
-            j++;
-        }
-        k++;
-    }
-
-    while (i < l_size)
-    {
-        arr[k] = l_arr[i];
-        i++;
-        k++;
-    }
-
-    while (j < r_size)
-    {
-        arr[k] = r_arr[j];
-        j++;
-        k++;
-    }
-}
-
-void swap_nums(int *a, int *b)
-{
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-void print_int_array(int *arr, size_t size) {
-    int i;
-    printf("[ ");
-    for (i = 0; i < size; i++) {
-        printf(" %d ", arr[i]);
-    }
-    printf(" ]\n");
 }
