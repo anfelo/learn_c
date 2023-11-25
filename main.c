@@ -15,6 +15,8 @@ int partition(int *arr, int low, int high);
 void mergesort(int *arr, int left, int right);
 void merge(int *arr, int left, int mid, int right);
 
+int binarysearch(int *arr, int left, int right, int value);
+
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -24,6 +26,7 @@ int main(int argc, char *argv[])
     }
 
     int my_arr[] = { 35, 29, 8, 90, 15, 33 };
+    int my_sorted_arr[] = { 8, 15, 29, 33, 35, 90 };
     size_t arr_len = sizeof(my_arr) / sizeof(my_arr[0]);
 
     // Initial array
@@ -48,6 +51,22 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[1], "mergesort") == 0)
     {
         mergesort(my_arr, 0, (int)arr_len);
+    }
+    else if (strcmp(argv[1], "binarysearch") == 0)
+    {
+        int value = 66;
+
+        int index = binarysearch(my_sorted_arr, 0, (int)arr_len, value);
+        if (index != -1)
+        {
+            print_int_array(my_sorted_arr, arr_len);
+            printf("value %d, was found in index %d\n", value, index);
+            return 0;
+        }
+        else
+        {
+            printf("value %d was not found\n", value);
+        }
     }
     else
     {
@@ -221,6 +240,31 @@ void merge(int *arr, int left, int mid, int right)
         j++;
         k++;
     }
+}
+
+int binarysearch(int *arr, int left, int right, int value)
+{
+    if (left >= right)
+    {
+        return -1;
+    }
+
+    int mid = left + (right - left) / 2;
+
+    if (arr[mid] == value)
+    {
+        return mid;
+    }
+    else if (arr[mid] > value)
+    {
+        right = mid;
+    }
+    else
+    {
+        left = mid + 1;
+    }
+
+    return binarysearch(arr, left, right, value);
 }
 
 void swap_nums(int *a, int *b)
