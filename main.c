@@ -1,109 +1,136 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Node {
-    int value;
-    struct Node *next;
-} Node;
-
-typedef struct LinkedList {
+typedef struct MinHeap {
     int length;
-    Node *head;
-    Node *tail;
+    int *data;
 
-} LinkedList;
+} MinHeap;
 
-Node* createNode(int item) {
-    Node *newNode = (Node*)malloc(sizeof(struct Node));
-    if (newNode == NULL) {
+MinHeap* createMinHeap() {
+    MinHeap *heap = (MinHeap*)malloc(sizeof(struct MinHeap));
+    int *data = (int*)malloc(sizeof(int*));
+    if (heap == NULL || data == NULL) {
         printf("Memory allocation failed.\n");
         exit(1);
     }
-    newNode->value = item;
-    newNode->next = NULL;
-    return newNode;
+    heap->length = 0;
+    heap->data = data;
+
+    return heap;
 }
 
-LinkedList* createList() {
-    LinkedList *list = (LinkedList*)malloc(sizeof(struct LinkedList));
-    if (list == NULL) {
-        printf("Memory allocation failed.\n");
-        exit(1);
-    }
-    list->length = 0;
-    list->head = NULL;
-    list->tail = NULL;
-
-    return list;
+void freeHeap(MinHeap *heap) {
+    free(heap->data);
+    free(heap);
 }
 
-void append(LinkedList *list, int item) {
-    Node *node = createNode(item);
+int parent(int idx) {
+    return (idx - 1) / 2;
+}
 
-    list->length++;
+int leftChild(int idx) {
+    return idx * 2 + 1;
+}
 
-    if (list->head == NULL) {
-        list->head = node;
-        list->tail = node;
+int rightChild(int idx) {
+    return idx * 2 + 2;
+}
+
+void heapifyUp(MinHeap *heap, int idx) {
+    if (idx <= 0) {
         return;
     }
 
-    list->tail->next = node;
-    list->tail = node;
+    int pIdx = parent(idx);
+    int pVal = heap->data[pIdx];
+    int val = heap->data[idx];
+
+    if (val < pVal) {
+        heap->data[pIdx] = val;
+        heap->data[idx] = pVal;
+        heapifyUp(heap, pIdx);
+    }
 }
 
-void prepend(LinkedList *list, int item) {
-    Node *node = createNode(item);
+void heapifyDown(MinHeap *heap, int idx) {
+    int lIdx = leftChild(idx);
+    int rIdx = rightChild(idx);
 
-    list->length++;
-
-    if (list->head == NULL) {
-        list->head = node;
-        list->tail = node;
+    if (idx >= heap->length || lIdx >= heap->length) {
         return;
     }
 
-    node->next = list->head;
-    list->head = node;
+    int lVal = heap->data[lIdx];
+    int rVal = heap->data[rIdx];
+    int val = heap->data[idx];
+
+    if (lVal < rVal && lVal < val) {
+        heap->data[lIdx] = val;
+        heap->data[idx] = lVal;
+        heapifyDown(heap, lIdx);
+    } else if (rVal < lVal && rVal < val) {
+        heap->data[rIdx] = val;
+        heap->data[idx] = rVal;
+        heapifyDown(heap, rIdx);
+    }
 }
 
-void freeList(LinkedList *list) {
-    Node *current = list->head;
-    Node *nextNode;
-
-    while (current != NULL) {
-        nextNode = current->next;
-        free(current);
-        current = nextNode;
-    }
-
-    free(list);
+void insert(MinHeap *heap, int value) {
+    heap->data[heap->length] = value;
+    heapifyUp(heap, heap->length);
+    heap->length++;
 }
 
-void printList(LinkedList *list) {
-    Node *current = list->head;
-    Node *nextNode;
-
-    while (current != NULL) {
-      nextNode = current->next;
-      printf("%d -> ", current->value);
-      current = nextNode;
+int delete(MinHeap *heap) {
+    if (heap->length == 0) {
+        return -1;
     }
 
-    printf("NULL\n");
+    int out = heap->data[0];
+    heap->length--;
+
+    if (heap->length == 0) {
+        return out;
+    }
+
+    heap->data[0] = heap->data[heap->length];
+    heapifyDown(heap, 0);
+
+    return out;
+}
+
+void printHeap(MinHeap *heap) {
+    printf("[");
+    for (int i = 0; i < heap->length; i++) {
+        printf(" %d ", heap->data[i]);
+    }
+    printf("]\n");
 }
 
 int main(int argc, char *argv[]) {
-    LinkedList *list = createList();
+    MinHeap *heap = createMinHeap();
 
-    append(list, 777);
-    append(list, 420);
-    append(list, 69);
-    prepend(list, 99);
+    insert(heap, 777);
+    insert(heap, 69);
+    insert(heap, 420);
+    insert(heap, 898);
+    insert(heap, 7);
 
-    printList(list);
+    printHeap(heap);
 
-    freeList(list);
+    delete(heap);
+    printHeap(heap);
+    delete(heap);
+    printHeap(heap);
+    delete(heap);
+    printHeap(heap);
+    delete(heap);
+    printHeap(heap);
+    delete(heap);
+    printHeap(heap);
+
+    freeHeap(heap);
 
     return 0;
 }
