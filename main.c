@@ -1,136 +1,186 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct MinHeap {
-    int length;
-    int *data;
+typedef struct BinarySearchNode {
+  int data;
+  struct BinarySearchNode *left;
+  struct BinarySearchNode *right;
+} BinarySearchNode;
 
-} MinHeap;
-
-MinHeap* createMinHeap() {
-    MinHeap *heap = (MinHeap*)malloc(sizeof(struct MinHeap));
-    int *data = (int*)malloc(sizeof(int*));
-    if (heap == NULL || data == NULL) {
+BinarySearchNode* createBSNode(int value) {
+    BinarySearchNode *bsnode = (BinarySearchNode*)malloc(sizeof(struct BinarySearchNode));
+    if (bsnode == NULL) {
         printf("Memory allocation failed.\n");
         exit(1);
     }
-    heap->length = 0;
-    heap->data = data;
+    bsnode->data  = value;
+    bsnode->left = NULL;
+    bsnode->right = NULL;
 
-    return heap;
+    return bsnode;
 }
 
-void freeHeap(MinHeap *heap) {
-    free(heap->data);
-    free(heap);
-}
-
-int parent(int idx) {
-    return (idx - 1) / 2;
-}
-
-int leftChild(int idx) {
-    return idx * 2 + 1;
-}
-
-int rightChild(int idx) {
-    return idx * 2 + 2;
-}
-
-void heapifyUp(MinHeap *heap, int idx) {
-    if (idx <= 0) {
+void freeBST(BinarySearchNode *bsnode) {
+    if (bsnode == NULL) {
         return;
     }
 
-    int pIdx = parent(idx);
-    int pVal = heap->data[pIdx];
-    int val = heap->data[idx];
+    freeBST(bsnode->left);
+    freeBST(bsnode->right);
 
-    if (val < pVal) {
-        heap->data[pIdx] = val;
-        heap->data[idx] = pVal;
-        heapifyUp(heap, pIdx);
-    }
+    free(bsnode);
 }
 
-void heapifyDown(MinHeap *heap, int idx) {
-    int lIdx = leftChild(idx);
-    int rIdx = rightChild(idx);
-
-    if (idx >= heap->length || lIdx >= heap->length) {
+void insert(BinarySearchNode *bsnode, int value) {
+    if (bsnode == NULL) {
         return;
     }
 
-    int lVal = heap->data[lIdx];
-    int rVal = heap->data[rIdx];
-    int val = heap->data[idx];
+    if (bsnode->data > value && bsnode->left == NULL) {
+        bsnode->left = createBSNode(value);
+        return;
+    }
 
-    if (lVal < rVal && lVal < val) {
-        heap->data[lIdx] = val;
-        heap->data[idx] = lVal;
-        heapifyDown(heap, lIdx);
-    } else if (rVal < lVal && rVal < val) {
-        heap->data[rIdx] = val;
-        heap->data[idx] = rVal;
-        heapifyDown(heap, rIdx);
+    if (bsnode->data < value && bsnode->right == NULL) {
+        bsnode->right = createBSNode(value);
+        return;
+    }
+
+    if (bsnode->data > value && bsnode->left != NULL) {
+        return insert(bsnode->left, value);
+    }
+
+    if (bsnode->data < value && bsnode->right != NULL) {
+        return insert(bsnode->right, value);
     }
 }
 
-void insert(MinHeap *heap, int value) {
-    heap->data[heap->length] = value;
-    heapifyUp(heap, heap->length);
-    heap->length++;
-}
-
-int delete(MinHeap *heap) {
-    if (heap->length == 0) {
+int search(BinarySearchNode *bsnode, int value) {
+    if (bsnode == NULL) {
         return -1;
     }
 
-    int out = heap->data[0];
-    heap->length--;
-
-    if (heap->length == 0) {
-        return out;
+    if (bsnode->data == value) {
+        return bsnode->data;
     }
 
-    heap->data[0] = heap->data[heap->length];
-    heapifyDown(heap, 0);
-
-    return out;
+    if (bsnode->data > value) {
+        return search(bsnode->left, value);
+    } else {
+        return search(bsnode->right, value);
+    }
 }
 
-void printHeap(MinHeap *heap) {
-    printf("[");
-    for (int i = 0; i < heap->length; i++) {
-        printf(" %d ", heap->data[i]);
+BinarySearchNode *lift(BinarySearchNode *bsnode, BinarySearchNode *nodeToDelete) {
+    if (bsnode->left == NULL) {
+        nodeToDelete->data = bsnode->data;
+        return bsnode->right;
+    } else {
+        bsnode->left = lift(bsnode->left, nodeToDelete);
+        return bsnode;
     }
-    printf("]\n");
+}
+
+BinarySearchNode *delete(BinarySearchNode *bsnode, int value) {
+    if (bsnode == NULL) {
+        return NULL;
+    }
+
+    if (bsnode->data == value) {
+        if (bsnode->left == NULL && bsnode->right == NULL) {
+            return NULL;
+        }
+
+        if (bsnode->left == NULL) {
+            return bsnode->right;
+        } else if (bsnode->right == NULL) {
+            return bsnode->left;
+        }
+
+        if (bsnode->left != NULL && bsnode->right != NULL) {
+            bsnode->right = lift(bsnode->right, bsnode);
+            return bsnode;
+        }
+    }
+
+    if (bsnode->data > value) {
+        bsnode->left = delete(bsnode->left, value);
+        return bsnode;
+    } else {
+        bsnode->right = delete(bsnode->right, value);
+        return bsnode;
+    }
+}
+
+void printDepthFirst(BinarySearchNode *bsnode) {
+    if (bsnode == NULL) {
+        return;
+    }
+
+    printf("( %d )", bsnode->data);
+    printDepthFirst(bsnode->left);
+    printDepthFirst(bsnode->right);
+}
+
+void printBreathFirst(BinarySearchNode *bsnode) {
+    BinarySearchNode *nodes[10];
+    nodes[0] = bsnode;
+    int nodes_len = 1;
+
+    while (nodes_len > 0) {
+        BinarySearchNode *curr = nodes[0];
+        nodes_len--;
+
+        printf("(%d)", curr->data);
+
+        if (curr->left != NULL) {
+            nodes[nodes_len] = curr->left;
+            nodes_len++;
+        }
+
+        if (curr->right != NULL) {
+            nodes[nodes_len] = curr->right;
+            nodes_len++;
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
-    MinHeap *heap = createMinHeap();
+    BinarySearchNode *bsroot= createBSNode(51);
 
-    insert(heap, 777);
-    insert(heap, 69);
-    insert(heap, 420);
-    insert(heap, 898);
-    insert(heap, 7);
+    printBreathFirst(bsroot);
+    printf("\n");
 
-    printHeap(heap);
+    printf("first level:\n");
+    insert(bsroot, 40);
+    insert(bsroot, 60);
 
-    delete(heap);
-    printHeap(heap);
-    delete(heap);
-    printHeap(heap);
-    delete(heap);
-    printHeap(heap);
-    delete(heap);
-    printHeap(heap);
-    delete(heap);
-    printHeap(heap);
+    printBreathFirst(bsroot);
+    printf("\n");
 
-    freeHeap(heap);
+    printf("second level:\n");
+    insert(bsroot, 20);
+    insert(bsroot, 45);
+    insert(bsroot, 100);
+    insert(bsroot, 59);
+
+    printBreathFirst(bsroot);
+    printf("\n");
+
+    int found = search(bsroot, 100);
+    printf("Expected: %d Found: %d\n", 100, found);
+
+    found = search(bsroot, 33);
+    printf("Expected %d Found: %d\n", -1, found);
+
+
+    printf("time to delete\n");
+
+    delete(bsroot, 20);
+    printBreathFirst(bsroot);
+    printf("\n");
+
+    freeBST(bsroot);
 
     return 0;
 }
